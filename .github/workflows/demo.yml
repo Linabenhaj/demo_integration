@@ -1,0 +1,34 @@
+﻿name: 🚀 Demo Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  demo-ci:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v4
+      
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: "9.0.x"
+        
+    - name: 🏗️ Build
+      run: |
+        echo "🔨 Building your MAUI app..."
+        cd demo
+        dotnet build --verbosity minimal
+        
+    - name: 🎯 Show RabbitMQ Demo Status
+      run: |
+        echo "========================================"
+        echo "🎯 RABBITMQ + SALESFORCE DEMO READY!"
+        echo "========================================"
+        echo "✅ Code automatically built"
+        echo "✅ CI/CD pipeline working"
+        echo "📍 Next: Live RabbitMQ message test"
