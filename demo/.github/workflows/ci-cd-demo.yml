@@ -1,146 +1,39 @@
-name: 🔗 RabbitMQ ↔️ Salesforce CI/CD Demo - MET ECHTE INTEGRATIE
+name: 🚀 Demo Pipeline
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # 👈 Handmatig starten via GitHub UI
+  workflow_dispatch:
 
 jobs:
-  rabbitmq-integratie-demo:
-    name: 🐇 Echte RabbitMQ ↔️ Salesforce Demo
+  demo-ci:
     runs-on: ubuntu-latest
     
     steps:
-    # STAP 1: Code ophalen
-    - name: 📥 1. Code Repository Ophalen
+    - name: 📥 Checkout
       uses: actions/checkout@v4
+      
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        fetch-depth: 1
-    
-    # STAP 2: RabbitMQ Server Starten
-    - name: 🐳 2. Start RabbitMQ Container
+        dotnet-version: "9.0.x"
+        
+    - name: 📦 Install MAUI Workloads
       run: |
-        echo "🚀 RABBITMQ SERVER STARTEN..."
-        docker run -d \
-          --name rabbitmq-school-demo \
-          -p 5672:5672 \
-          -p 15672:15672 \
-          --health-cmd="rabbitmq-diagnostics ping" \
-          --health-interval=10s \
-          --health-timeout=5s \
-          --health-retries=5 \
-          rabbitmq:3.13-management
+        echo "Installing MAUI workloads..."
+        dotnet workload install maui-android
+        dotnet workload install maui-ios
+        dotnet workload install maui-maccatalyst
+        dotnet workload install maui-windows
         
-        echo "⏳ Wachten tot RabbitMQ volledig opgestart is..."
-        sleep 15
-        echo "✅ RabbitMQ server is klaar!"
-        echo "   • AMQP poort: 5672"
-        echo "   • Web interface: 15672"
-    
-    # STAP 3: STUUR ECHT BERICHT MET CURL
-    - name: 📨 3. Stuur "Hallo" Bericht naar RabbitMQ
+    - name: 🏗️ Build MAUI App
       run: |
-        echo "📤 ECHT BERICHT VERSTUREN..."
-        echo "=============================="
+        echo "🔨 Building MAUI app..."
+        cd demo
+        dotnet build --verbosity minimal
         
-        # EERST: Maak een queue aan (optioneel maar netjes)
-        curl -u guest:guest -X PUT \
-          -H "Content-Type: application/json" \
-          http://localhost:15672/api/queues/%2F/school.demo \
-          -d '{
-            "auto_delete": false,
-            "durable": true,
-            "arguments": {}
-          }'
-        
-        echo "✅ Queue 'school.demo' aangemaakt"
-        
-        # NU: Stuur het echte bericht
-        echo ""
-        echo "📨 STUUR BERICHT NAAR RABBITMQ:"
-        
-        curl -u guest:guest -X POST \
-          -H "Content-Type: application/json" \
-          http://localhost:15672/api/exchanges/%2F/amq.default/publish \
-          -d '{
-            "properties": {
-              "content_type": "text/plain",
-              "delivery_mode": 2
-            },
-            "routing_key": "school.demo",
-            "payload": "HALLO vanuit CI/CD Pipeline! Dit is een echt RabbitMQ bericht.",
-            "payload_encoding": "string"
-          }'
-        
-        echo ""
-        echo "✅ BERICHT SUCCESVOL VERSTUURD!"
-        echo "   Queue: school.demo"
-        echo "   Bericht: 'HALLO vanuit CI/CD Pipeline! Dit is een echt RabbitMQ bericht.'"
-    
-    # STAP 4: Controleer of bericht is aangekomen
-    - name: 🔍 4. Controleer RabbitMQ Status
+    - name: 🎯 Demo Success
       run: |
-        echo "📊 RABBITMQ STATUS CONTROLEREN..."
-        echo "================================"
-        
-        # Toon alle queues
-        echo ""
-        echo "📋 BESCHIKBARE QUEUES:"
-        curl -s -u guest:guest http://localhost:15672/api/queues | \
-          jq -r '.[] | "• \(.name) (\(.messages) berichten)"' || \
-          echo "Gebruik fallback als jq niet werkt..."
-        
-        # Specifieke queue details
-        echo ""
-        echo "🔍 DETAILS VAN 'school.demo' QUEUE:"
-        curl -s -u guest:guest http://localhost:15672/api/queues/%2F/school.demo | \
-          python3 -c "
-import json, sys
-try:
-    data = json.load(sys.stdin)
-    print(f'• Queue: {data[\"name\"]}')
-    print(f'• Aantal berichten: {data[\"messages\"]}')
-    print(f'• Consumers: {data[\"consumers\"]}')
-    print(f'• Status: {data[\"state\"]}')
-except:
-    print('Queue details ophalen...')
-"
-        
-        # RabbitMQ management interface info
-        echo ""
-        echo "🌐 RABBITMQ MANAGEMENT CONSOLE:"
-        echo "================================"
-        echo "URL: http://localhost:15672"
-        echo "Gebruiker: guest"
-        echo "Wachtwoord: guest"
-        echo ""
-        echo "⚠️  Opmerking: Deze URL is alleen lokaal beschikbaar tijdens de workflow run."
-        echo "   In productie zou dit een publieke URL zijn."
-    
-    # STAP 5: Demo conclusie
-    - name: 🎓 5. Demo Uitleg en Conclusie
-      run: |
-        echo ""
-        echo "🎯 DEMO CONCLUSIE"
-        echo "================="
-        echo ""
-        echo "✅ WAT WE NET GEDAAN HEBBEN:"
-        echo "1. 🐳 RabbitMQ server gestart in Docker"
-        echo "2. 📨 Echt bericht verstuurd via curl"
-        echo "3. 🔍 Status gecontroleerd via RabbitMQ API"
-        echo ""
-        echo "💡 VOOR JULLIE PROJECT:"
-        echo "• Dit 'HALLO' bericht zou Salesforce data bevatten"
-        echo "• Bijvoorbeeld:"
-        echo "  {"
-        echo '    "action": "create_opportunity",'
-        echo '    "amount": 1500,'
-        echo '    "customer": "Demo Klant"'
-        echo "  }"
-        echo ""
-        echo "🔄 VOLGENDE STAP IN INTEGRATIE:"
-        echo "1. Salesforce haalt berichten op uit RabbitMQ"
-        echo "2. Salesforce verwerkt de data"
-        echo "3. Salesforce stuurt bevestiging terug"
-        echo ""
-        echo "🚀 DEMO GESLAAGD!"
+        echo "========================================"
+        echo "✅ CI/CD PIPELINE SUCCESS!"
+        echo "========================================"
