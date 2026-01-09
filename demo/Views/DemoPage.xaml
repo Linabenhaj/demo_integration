@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="demo_app_rabbit.DemoPage"
+             Title="RabbitMQ ↔ Salesforce Demo">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+
+            <!-- HEADER -->
+            <VerticalStackLayout Spacing="10">
+                <Label Text="🔗 RabbitMQ ↔ Salesforce" 
+                       FontSize="32" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="Integration Demo with CI/CD" 
+                       FontSize="16" 
+                       HorizontalOptions="Center"
+                       TextColor="Gray"/>
+            </VerticalStackLayout>
+
+            <!-- STATUS BAR -->
+            <Frame BackgroundColor="#F5F5F5" Padding="15" CornerRadius="10">
+                <HorizontalStackLayout Spacing="15">
+                    <Frame WidthRequest="20" HeightRequest="20" 
+                           CornerRadius="10" Padding="0"
+                           BackgroundColor="{Binding RabbitMQColor}"/>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="RabbitMQ Status" FontSize="14"/>
+                        <Label Text="{Binding RabbitMQStatus}" FontSize="12"/>
+                    </VerticalStackLayout>
+
+                    <Frame WidthRequest="20" HeightRequest="20" 
+                           CornerRadius="10" Padding="0"
+                           BackgroundColor="{Binding SalesforceColor}"
+                           Margin="20,0,0,0"/>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Salesforce Status" FontSize="14"/>
+                        <Label Text="{Binding SalesforceStatus}" FontSize="12"/>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!-- STEP 1: CREATE ORDER -->
+            <Frame BackgroundColor="#E8F5E9" Padding="20" CornerRadius="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="1️⃣ Create Demo Order" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <Entry x:Name="CustomerEntry" 
+                           Placeholder="Customer Name"
+                           BackgroundColor="White"/>
+
+                    <Entry x:Name="ProductEntry" 
+                           Placeholder="Product"
+                           BackgroundColor="White"/>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button x:Name="BtnSendToRabbitMQ" 
+                                Grid.Column="0"
+                                Text="📤 Send to RabbitMQ"
+                                Clicked="OnSendToRabbitMQClicked"
+                                BackgroundColor="#4CAF50"
+                                TextColor="White"/>
+
+                        <Button Grid.Column="1"
+                                Text="📋 View Queue"
+                                Clicked="OnViewQueueClicked"
+                                BackgroundColor="#2196F3"
+                                TextColor="White"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- STEP 2: SALESFORCE PROCESSING -->
+            <Frame BackgroundColor="#FFF3E0" Padding="20" CornerRadius="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="2️⃣ Salesforce Processing" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <ProgressBar x:Name="SalesforceProgress" 
+                                 Progress="0"
+                                 ProgressColor="#FF9800"/>
+
+                    <Button x:Name="BtnSyncToSalesforce" 
+                            Text="⚡ Sync to Salesforce"
+                            Clicked="OnSyncToSalesforceClicked"
+                            BackgroundColor="#FF9800"
+                            TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- STEP 3: CI/CD DEMO -->
+            <Frame BackgroundColor="#E3F2FD" Padding="20" CornerRadius="15">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🔄 CI/CD Pipeline Demo" 
+                           FontSize="20" 
+                           FontAttributes="Bold"/>
+
+                    <Label Text="This demo uses automated:" 
+                           FontSize="14"/>
+
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Button Text="🏗️ Build" 
+                                Clicked="OnBuildDemoClicked"
+                                BackgroundColor="#E91E63"
+                                TextColor="White"/>
+
+                        <Button Text="🧪 Test" 
+                                Clicked="OnTestDemoClicked"
+                                BackgroundColor="#9C27B0"
+                                TextColor="White"/>
+
+                        <Button Text="🚀 Deploy" 
+                                Clicked="OnDeployDemoClicked"
+                                BackgroundColor="#673AB7"
+                                TextColor="White"/>
+                    </HorizontalStackLayout>
+
+                    <Label x:Name="PipelineStatus" 
+                           Text="Check .github/workflows/ for CI/CD config"
+                           FontSize="12"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- LOG OUTPUT -->
+            <Frame BackgroundColor="#263238" Padding="20" CornerRadius="15">
+                <VerticalStackLayout Spacing="15">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="📝 Integration Log" 
+                               FontSize="18" 
+                               TextColor="White"
+                               FontAttributes="Bold"/>
+
+                        <Button Text="🗑️ Clear" 
+                                Clicked="OnClearLogClicked"
+                                BackgroundColor="#546E7A"
+                                TextColor="White"
+                                HorizontalOptions="EndAndExpand"/>
+                    </HorizontalStackLayout>
+
+                    <Editor x:Name="LogOutput" 
+                            IsReadOnly="True"
+                            HeightRequest="250"
+                            BackgroundColor="#37474F"
+                            TextColor="White"
+                            FontFamily="Courier"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- QUICK ACTIONS -->
+            <Button x:Name="BtnRunFullDemo"
+                    Text="🎬 Run Complete Demo"
+                    Clicked="OnRunFullDemoClicked"
+                    BackgroundColor="#6200EA"
+                    TextColor="White"
+                    FontSize="16"
+                    HeightRequest="50"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
